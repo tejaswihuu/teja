@@ -1,0 +1,73 @@
+import machine
+import utime
+import network
+import ssd1306
+import Adafruit_Fingerprint
+
+#Constants for GPIO pins
+DOOR_LOCK_PIN=machine.Pin(14,machine.Pin.OUT)#Example pin for controlling door lock
+OLED_SDA_PIN=machine.Pin(20)
+OLED_SCL_PIN=machine.Pin(21)
+FINGERPRINT_RX_PIN=machine.Pin(4)
+FINGERPRINT_TX_PIN=machine.Pin(5)
+#Initialize OLED display
+i2c=machine.I2C(0,sda=OLED_SDA_PIN,scl=OLED_SCL_PIN)
+oled=ssd1306.SSD1306_I2C(128,64,i2c)
+#Initialize fingerprint sensor
+finger=Adafruit_Fingerprint.Adafruit_Fingerprint(FRINGERPRINT_RX_PIN_FINGERPRINT_TX_PIN)
+#Initialize Wi-Fi(replace placeholders with your network credentials)
+wifi=network.WLAN(network.STA_IF)
+wifi.active(True)
+wifi.connect("Your_WiFi_SSID","Your_WiFi)Password")
+
+
+#Function to display message on OLED
+def display_message(message):
+oled.fill(0)
+oled.text(message,0,0)
+oled.show() 
+#Function to initialize fingerprint sensor
+def initialize_fingerprint_sensor():
+while finger.begin()!=Adafruit_Fingerprint.OK:
+display_message("Fingerprint sensor\ninitialized")
+utime.sleep(2)
+machine.reset()
+display_message("Fingerprint sensor\ninitialized")
+#Function to authenticate user based on fingerprint
+def authenticate_user():
+display_messagae("Place finger on\nsensor...")
+while not finger.readImage():
+passfinger.convertImage(Adafruit_Fingerprint.FINGERPRINT_ENROLLIMAGE)
+result=finger.search()
+if result==Adafruit_Fingerprint.OK:
+  display_message("Access granted!")
+  return True
+  else:
+  display_meessage("Accessvdenied!")
+  return False
+  
+#Function to control door lock based on authentication result
+def control_door_lock(authenticated):
+if authenticated:
+DOOR_LOCK_PIN.value(1)#Unlock the door (examples:set pin high)
+utime.sleep(5)#keep door unlocked for 5 seconds
+DOOR_LOCK_PIN.value(0)#Lock the door
+else:
+#Optionally trigger alarm or display error message
+pass
+#Main program loop
+def main():
+initialize_fingerprint_sensor()
+while True:
+  if wifi.isconnected():
+   display_message("Ready to scan!")
+   if machine.Pin(0,machine.Pin.IN).value()==0:#Example:button press
+   to scan fingerprint
+   authenticated+authenticate_user()
+   control_door_lock(authenticated)
+   else:
+   display_message("Connecting to Wi_Fi...")
+   
+   
+   if_name_=="_main__":
+   main()
